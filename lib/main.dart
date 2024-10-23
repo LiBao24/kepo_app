@@ -1,18 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
-  runApp(const MainApp());
+import 'models/player.dart';
+
+void main() async {
+  runApp(const MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Player App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const PlayerPage(),
+    );
+  }
+}
+
+class PlayerPage extends StatefulWidget {
+  const PlayerPage({super.key});
+  @override
+  _PlayerPageState createState() => _PlayerPageState();
+}
+
+class _PlayerPageState extends State<PlayerPage> {
+  late Future<Player> player;
+
+  Future<Player> fetchPlayer() async {
+    final response = await http.get(
+      Uri.parse('https://api.balldontlie.io/v1/players/115'),
+      headers: {
+        'Authorization': '54a33d13-d204-4f87-9b5d-4abef3c688a6',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return playerFromJson(response.body);
+    } else {
+      throw Exception('Failed to load player');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    player = fetchPlayer();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Player Details'),
+      ),
+      body: Center(
+        child: FutureBuilder<Player>(
+          future: player,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      'Name: ${snapshot.data!.data.firstName} ${snapshot.data!.data.lastName}'),
+                  Text('Position: ${snapshot.data!.data.position}'),
+                  Text('Team: ${snapshot.data!.data.team.fullName}'),
+                  Text('Height: ${snapshot.data!.data.height}'),
+                  Text('Weight: ${snapshot.data!.data.weight}'),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            return const CircularProgressIndicator();
+          },
         ),
       ),
     );
