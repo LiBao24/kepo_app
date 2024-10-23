@@ -28,11 +28,12 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
-  late Future<Player> player;
+  late Future<Player>? player;
+  final TextEditingController _controller = TextEditingController();
 
-  Future<Player> fetchPlayer() async {
+  Future<Player> fetchPlayer(String playerId) async {
     final response = await http.get(
-      Uri.parse('https://api.balldontlie.io/v1/players/115'),
+      Uri.parse('https://api.balldontlie.io/v1/players/$playerId'),
       headers: {
         'Authorization': '54a33d13-d204-4f87-9b5d-4abef3c688a6',
       },
@@ -45,10 +46,12 @@ class _PlayerPageState extends State<PlayerPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    player = fetchPlayer();
+  void _searchPlayer() {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
+        player = fetchPlayer(_controller.text);
+      });
+    }
   }
 
   @override
@@ -58,27 +61,55 @@ class _PlayerPageState extends State<PlayerPage> {
         title: const Text('Player Details'),
       ),
       body: Center(
-        child: FutureBuilder<Player>(
-          future: player,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              var playerData = snapshot.data!.data;
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Name: ${playerData.firstName} ${playerData.lastName}'),
-                  Text('Position: ${playerData.position}'),
-                  Text('Team: ${playerData.team.fullName}'),
-                  Text('Height: ${playerData.height ?? 'N/A'}'),
-                  Text('Weight: ${playerData.weight ?? 'N/A'}'),
-                ],
-              );
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            return const CircularProgressIndicator();
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter Player ID',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _searchPlayer,
+              child: const Text('Search Player'),
+            ),
+            const SizedBox(height: 20),
+            FutureBuilder<Player>(
+              future: player,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  var playerData = snapshot.data!.data;
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          'Name: ${playerData.firstName} ${playerData.lastName}'),
+                      Text('Position: ${playerData.position}'),
+                      Text('Team: ${playerData.team.fullName}'),
+                      Text(
+                          'Height: ${playerData.height != 0 ? playerData.height : 'N/A'}'),
+                      Text(
+                          'Weight: ${playerData.weight != 0 ? playerData.weight : 'N/A'}'),
+                      Text(
+                          'Draft Year: ${playerData.draftYear != 0 ? playerData.draftYear : 'N/A'}'),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
         ),
       ),
     );
