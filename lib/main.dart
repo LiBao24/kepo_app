@@ -62,15 +62,15 @@ class _PlayerPageState extends State<PlayerPage> {
           future: player,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              var playerData = snapshot.data!.data;
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                      'Name: ${snapshot.data!.data.firstName} ${snapshot.data!.data.lastName}'),
-                  Text('Position: ${snapshot.data!.data.position}'),
-                  Text('Team: ${snapshot.data!.data.team.fullName}'),
-                  Text('Height: ${snapshot.data!.data.height}'),
-                  Text('Weight: ${snapshot.data!.data.weight}'),
+                  Text('Name: ${playerData.firstName} ${playerData.lastName}'),
+                  Text('Position: ${playerData.position}'),
+                  Text('Team: ${playerData.team.fullName}'),
+                  Text('Height: ${playerData.height ?? 'N/A'}'),
+                  Text('Weight: ${playerData.weight ?? 'N/A'}'),
                 ],
               );
             } else if (snapshot.hasError) {

@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final player = playerFromJson(jsonString);
-
 import 'dart:convert';
 
 Player playerFromJson(String str) => Player.fromJson(json.decode(str));
@@ -29,14 +25,14 @@ class Data {
   String firstName;
   String lastName;
   String position;
-  String height;
-  String weight;
-  String jerseyNumber;
-  String college;
+  String? height;
+  String? weight;
+  String? jerseyNumber;
+  String? college;
   String country;
-  int draftYear;
-  int draftRound;
-  int draftNumber;
+  int? draftYear;
+  int? draftRound;
+  int? draftNumber;
   Team team;
 
   Data({
@@ -44,14 +40,14 @@ class Data {
     required this.firstName,
     required this.lastName,
     required this.position,
-    required this.height,
-    required this.weight,
-    required this.jerseyNumber,
-    required this.college,
+    this.height,
+    this.weight,
+    this.jerseyNumber,
+    this.college,
     required this.country,
-    required this.draftYear,
-    required this.draftRound,
-    required this.draftNumber,
+    this.draftYear,
+    this.draftRound,
+    this.draftNumber,
     required this.team,
   });
 
@@ -65,9 +61,9 @@ class Data {
         jerseyNumber: json["jersey_number"],
         college: json["college"],
         country: json["country"],
-        draftYear: json["draft_year"],
-        draftRound: json["draft_round"],
-        draftNumber: json["draft_number"],
+        draftYear: json["draft_year"] as int? ?? 0,
+        draftRound: json["draft_round"] as int? ?? 0,
+        draftNumber: json["draft_number"] as int? ?? 0,
         team: Team.fromJson(json["team"]),
       );
 
