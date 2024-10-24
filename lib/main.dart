@@ -28,7 +28,7 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
-  late Future<Player>? player;
+  Future<Player>? player;
   final TextEditingController _controller = TextEditingController();
 
   Future<Player> fetchPlayer(String playerId) async {
